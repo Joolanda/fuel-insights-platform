@@ -32,6 +32,36 @@ The architecture is intentionally flexible and can be extended later to support 
 ---
 
 ## **Architecture**
+
+## **Architecture Diagram**
+
+## **Architecture Diagram**
+
+```text
+          +---------------------------+
+          |        Keycloak IAM       |
+          |   Realm: fuel-insights    |
+          +-------------+-------------+
+                        |
+                        | JWT / OIDC
+                        v
+              +----------------------+
+              |      FastAPI API     |
+              |  /fuel/* endpoints   |
+              +----------+-----------+
+                         |
+             Metrics & Logs to Stack
+                         |
+        +---------+  +---------+  +--------+
+        |Prometheus| | Grafana | |  Loki  |
+        +---------+  +---------+  +--------+
+
+          +---------------------------+
+          |     Kubernetes Cluster    |
+          |  (local / AWS, GitOps)    |
+          +---------------------------+
+
+
 The platform consists of:
 
 - **API Service**  
@@ -67,22 +97,49 @@ argocd/             # GitOps application definitions
 
 ---
 
-## **IAM Design**
-Keycloak realm: `fuel-insights`
+## 🔐 IAM Demo: User Login & Role‑Based Access Control
 
-Roles:
-- `viewer` – read-only access  
-- `admin` – manage fill-ups, alerts, configuration  
+The platform includes a complete Identity & Access Management setup using **Keycloak**, demonstrating both machine‑to‑machine authentication and interactive user login.
 
-Clients:
-- `fuel-api` (confidential)
-- `fuel-frontend` (public)
+### **User Login Flow**
+A demo user (`anna.musterfrau`) is created inside the `fuel-insights` realm to showcase the standard OIDC Authorization Code Flow.
 
-Authentication:
-- OIDC Authorization Code Flow (frontend)
-- Bearer token (API)
+The login screen below shows a successful authentication attempt using a real Keycloak login page:
 
----
+### Realm Welcome Screen
+![Realm Welcome](docs/images/keycloak-realm-welcome.png)
+
+
+### **Realm Roles**
+The following realm roles are defined to support fine‑grained access control:
+
+| Role        | Description                                      |
+|-------------|--------------------------------------------------|
+| `viewer`    | Read‑only access to non‑sensitive API endpoints  |
+| `fuel-user` | Standard access to fuel‑related API operations   |
+| `admin`     | Full administrative access to the Fuel API       |
+
+These roles are assigned to users and service accounts to enforce RBAC across the platform.
+
+### User Role Mapping
+![Role Mapping](docs/images/keycloak-role-mapping.png)
+
+### **Token Inspection**
+After login, the user receives a JWT containing:
+
+- `preferred_username`
+- `realm_access.roles`
+- `exp`, `iat`, `iss`
+- Optional custom claims
+
+This token is then used to access protected FastAPI endpoints.
+
+### **API Access Example**
+- A `viewer` can access read‑only endpoints such as `/fuel/history`
+- An `admin` can access management endpoints such as `/fuel/refill` or `/fuel/config`
+- Unauthorized roles receive a `403 Forbidden` response
+
+This demonstrates a clean, production‑style IAM integration suitable for DevOps, CloudOps, and security‑focused environments.
 
 ## **Local Development**
 Local environment uses:
