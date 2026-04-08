@@ -162,40 +162,5 @@ The platform can be deployed on AWS using:
 
 ---
 
-## **Next Steps**
-
-The platform is intentionally designed to evolve. Future enhancements may include:
-
-### **1. ML‑Based Consumption Forecasting**
-- Predict daily and monthly fuel usage
-- Detect seasonal patterns (winter vs. summer)
-- Estimate time‑to‑empty and optimal refill windows
-- Provide cost projections based on price trends
-
-### **2. Multi‑Household Support**
-- Allow multiple households to submit tank measurements
-- Compare consumption patterns across users
-- Enable community‑based forecasting models
-- Support different tank types and sizes
-
-### **3. IoT Sensor Integration**
-- Connect ultrasonic or pressure‑based tank sensors
-- Stream real‑time tank levels into the API
-- Trigger alerts for low levels or abnormal consumption
-- Enable fully automated monitoring
-
-### **4. Extended Fuel Types**
-- Agricultural diesel tanks
-- Generator fuel storage
-- Fleet vehicle fuel tracking
-
-### **5. Frontend Dashboard**
-- Web UI for tank levels, consumption, and predictions
-- Role‑based access (viewer, admin)
-- Real‑time charts powered by Grafana or custom UI
-
-These steps transform the platform from a personal tool into a scalable, cloud‑native fuel analytics system suitable for households, agriculture, or industrial use.
-
 ## **Status**
 This project is under active development.
-
