@@ -107,15 +107,3 @@ The platform can be deployed on AWS using:
 
 ## **Status**
 This project is under active development.
-
----
-
-Als je wilt, maak ik nu ook:
-
-- **IAM_DESIGN.md**  
-- **ARCHITECTURE.md** (met diagram)  
-- **LOCAL_SETUP.md**  
-- **AWS_DEPLOYMENT.md**  
-- of het **FastAPI skeleton** met Keycloak‑auth  
-
-Zeg maar welke stap je nu wilt zetten — we bouwen dit platform strak verder.
