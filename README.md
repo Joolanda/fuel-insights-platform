@@ -32,6 +32,36 @@ The architecture is intentionally flexible and can be extended later to support 
 ---
 
 ## **Architecture**
+
+## **Architecture Diagram**
+
+## **Architecture Diagram**
+
+```text
+          +---------------------------+
+          |        Keycloak IAM       |
+          |   Realm: fuel-insights    |
+          +-------------+-------------+
+                        |
+                        | JWT / OIDC
+                        v
+              +----------------------+
+              |      FastAPI API     |
+              |  /fuel/* endpoints   |
+              +----------+-----------+
+                         |
+             Metrics & Logs to Stack
+                         |
+        +---------+  +---------+  +--------+
+        |Prometheus| | Grafana | |  Loki  |
+        +---------+  +---------+  +--------+
+
+          +---------------------------+
+          |     Kubernetes Cluster    |
+          |  (local / AWS, GitOps)    |
+          +---------------------------+
+
+
 The platform consists of:
 
 - **API Service**  
@@ -67,22 +97,49 @@ argocd/             # GitOps application definitions
 
 ---
 
-## **IAM Design**
-Keycloak realm: `fuel-insights`
+## 🔐 IAM Demo: User Login & Role‑Based Access Control
 
-Roles:
-- `viewer` – read-only access  
-- `admin` – manage fill-ups, alerts, configuration  
+The platform includes a complete Identity & Access Management setup using **Keycloak**, demonstrating both machine‑to‑machine authentication and interactive user login.
 
-Clients:
-- `fuel-api` (confidential)
-- `fuel-frontend` (public)
+### **User Login Flow**
+A demo user (`anna.musterfrau`) is created inside the `fuel-insights` realm to showcase the standard OIDC Authorization Code Flow.
 
-Authentication:
-- OIDC Authorization Code Flow (frontend)
-- Bearer token (API)
+The login screen below shows a successful authentication attempt using a real Keycloak login page:
 
----
+### Realm Welcome Screen
+![Realm Welcome](docs/images/keycloak-realm-welcome.png)
+
+
+### **Realm Roles**
+The following realm roles are defined to support fine‑grained access control:
+
+| Role        | Description                                      |
+|-------------|--------------------------------------------------|
+| `viewer`    | Read‑only access to non‑sensitive API endpoints  |
+| `fuel-user` | Standard access to fuel‑related API operations   |
+| `admin`     | Full administrative access to the Fuel API       |
+
+These roles are assigned to users and service accounts to enforce RBAC across the platform.
+
+### User Role Mapping
+![Role Mapping](docs/images/keycloak-role-mapping.png)
+
+### **Token Inspection**
+After login, the user receives a JWT containing:
+
+- `preferred_username`
+- `realm_access.roles`
+- `exp`, `iat`, `iss`
+- Optional custom claims
+
+This token is then used to access protected FastAPI endpoints.
+
+### **API Access Example**
+- A `viewer` can access read‑only endpoints such as `/fuel/history`
+- An `admin` can access management endpoints such as `/fuel/refill` or `/fuel/config`
+- Unauthorized roles receive a `403 Forbidden` response
+
+This demonstrates a clean, production‑style IAM integration suitable for DevOps, CloudOps, and security‑focused environments.
 
 ## **Local Development**
 Local environment uses:
@@ -105,17 +162,40 @@ The platform can be deployed on AWS using:
 
 ---
 
+## **Next Steps**
+
+The platform is intentionally designed to evolve. Future enhancements may include:
+
+### **1. ML‑Based Consumption Forecasting**
+- Predict daily and monthly fuel usage
+- Detect seasonal patterns (winter vs. summer)
+- Estimate time‑to‑empty and optimal refill windows
+- Provide cost projections based on price trends
+
+### **2. Multi‑Household Support**
+- Allow multiple households to submit tank measurements
+- Compare consumption patterns across users
+- Enable community‑based forecasting models
+- Support different tank types and sizes
+
+### **3. IoT Sensor Integration**
+- Connect ultrasonic or pressure‑based tank sensors
+- Stream real‑time tank levels into the API
+- Trigger alerts for low levels or abnormal consumption
+- Enable fully automated monitoring
+
+### **4. Extended Fuel Types**
+- Agricultural diesel tanks
+- Generator fuel storage
+- Fleet vehicle fuel tracking
+
+### **5. Frontend Dashboard**
+- Web UI for tank levels, consumption, and predictions
+- Role‑based access (viewer, admin)
+- Real‑time charts powered by Grafana or custom UI
+
+These steps transform the platform from a personal tool into a scalable, cloud‑native fuel analytics system suitable for households, agriculture, or industrial use.
+
 ## **Status**
 This project is under active development.
 
----
-
-Als je wilt, maak ik nu ook:
-
-- **IAM_DESIGN.md**  
-- **ARCHITECTURE.md** (met diagram)  
-- **LOCAL_SETUP.md**  
-- **AWS_DEPLOYMENT.md**  
-- of het **FastAPI skeleton** met Keycloak‑auth  
-
-Zeg maar welke stap je nu wilt zetten — we bouwen dit platform strak verder.
